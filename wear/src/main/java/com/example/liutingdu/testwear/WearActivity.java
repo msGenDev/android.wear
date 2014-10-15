@@ -44,10 +44,11 @@ import java.util.concurrent.TimeUnit;
 
 public class WearActivity extends Activity implements WearableListView.ClickListener, DataApi.DataListener, MessageApi.MessageListener
 {
-
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
+    public final String REQUEST_SAVE_SNAPSHOT_PATH = "/request/savesnapshot";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
+    public final String MESSAGE_SNAPSHOT_SAVED_PATH = "/response/save/success";
     private final String TAG = "WearActivity";
 
     private WearableListView listView;
@@ -57,6 +58,9 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     private LinearLayout saveLayout;
     private TextView mTextView;
     private GoogleApiClient mGoogleApiClient;
+
+    private ArrayList<String> cameraIdList = new ArrayList<String>();
+    private ArrayList<String> cameraNameList = new ArrayList<String>();
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
@@ -124,17 +128,30 @@ public class WearActivity extends Activity implements WearableListView.ClickList
 
         TextView txtView = (TextView) v.itemView.findViewById(R.id.name);
 
-        Log.d(TAG, tag + " " + txtView.getText());
+        String selectedCameraName = txtView.getText().toString();
+        Log.d(TAG, tag + " " + selectedCameraName);
         listView.setVisibility(View.GONE);
         imageView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
 
-        new SendMessageTask(REQUEST_SNAPSHOT_PATH, new String("hello").getBytes()).execute();
+        new SendMessageTask(REQUEST_SNAPSHOT_PATH, retrieveCameraIdFrom(selectedCameraName).getBytes()).execute();
 
         //        Intent intent = new Intent();
         //        intent.setClass(WearActivity.this,ImageActivity.class );
         //        this.startActivity(intent);
 
+    }
+
+    private String retrieveCameraIdFrom(String cameraName)
+    {
+        for(int index = 0 ; index < cameraNameList.size() ; index ++)
+        {
+            if(cameraName.equals(cameraNameList.get(index)))
+            {
+                return cameraIdList.get(index);
+            }
+        }
+        return "";
     }
 
     private void showCameraList(ArrayList<String> cameraNameList)
@@ -205,8 +222,21 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                                 {
                                     public void onClick (View v)
                                     {
-                                        Log.d(TAG, "on click");
+                                        Log.d(TAG, "image view on click");
+                                        imageView.setOnClickListener(null);
+                                        imageView.setVisibility(View.GONE);
                                         saveLayout.setVisibility(View.VISIBLE);
+                                        circledImageView.setOnClickListener(new View.OnClickListener()
+                                        {
+                                            @Override
+                                            public void onClick (View v)
+                                            {
+                                                Log.d(TAG, "circled image view on click");
+                                                saveLayout.setVisibility(View.GONE);
+                                                progressBar.setVisibility(View.VISIBLE);
+                                                new SendMessageTask(REQUEST_SAVE_SNAPSHOT_PATH, null).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -251,12 +281,9 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     {
         Log.d(TAG, "onMessageReceived" + messageEvent.getPath() + " " + new String(messageEvent.getData()));
 
-
-        Wearable.DataApi.getDataItems(mGoogleApiClient);
         if(messageEvent.getPath().equals(MESSAGE_CAMERA_LIST_UPDATED_PATH))
         {
             Log.d(TAG, "Camera list updated");
-
 
             PendingResult<DataItemBuffer> results = Wearable.DataApi.getDataItems(mGoogleApiClient);
             results.setResultCallback(new ResultCallback<DataItemBuffer>() {
@@ -265,8 +292,8 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                     if (dataItems.getCount() != 0) {
                         DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItems.get(0));
 
-                        ArrayList<String> cameraIdList = dataMapItem.getDataMap().getStringArrayList("cameraIdList");
-                        ArrayList<String> cameraNameList = dataMapItem.getDataMap().getStringArrayList("cameraNameList");
+                        cameraIdList = dataMapItem.getDataMap().getStringArrayList("cameraIdList");
+                        cameraNameList = dataMapItem.getDataMap().getStringArrayList("cameraNameList");
 
                         Log.d(TAG, cameraIdList.size() + " " + cameraNameList.size());
 
@@ -275,6 +302,10 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                     dataItems.release();
                 }
             });
+        }
+        else if(messageEvent.getPath().equals(MESSAGE_SNAPSHOT_SAVED_PATH))
+        {
+
         }
     }
 
