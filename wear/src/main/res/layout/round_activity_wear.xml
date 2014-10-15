@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".WearActivity"
+    tools:deviceIds="wear_round">
+
+    <ImageView
+        android:id="@+id/snapshotImage"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <android.support.wearable.view.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <FrameLayout
+            android:id="@+id/frame_layout"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            app:layout_box="left|bottom|right">
+
+            <android.support.wearable.view.WearableListView
+                android:id="@+id/wearable_list"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"></android.support.wearable.view.WearableListView>
+        </FrameLayout>
+    </android.support.wearable.view.BoxInsetLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleLarge"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/save_layout"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <android.support.wearable.view.CircledImageView
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher"
+            app:circle_color="@color/action_button"
+            app:circle_radius="52dp"
+            app:circle_border_width="0dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Save to phone"
+            android:id="@+id/label"
+            android:singleLine="true"
+            android:fontFamily="sans-serif-condensed-light"
+            android:textSize="20sp"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</RelativeLayout>
