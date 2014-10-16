@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
@@ -54,6 +56,7 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
+    public final String MESSAGE_SNAPSHOT_UPDATED_PATH = "/response/snapshot";
     public final String MESSAGE_SNAPSHOT_SAVED_PATH = "/response/save/success";
     public final String REQUEST_SAVE_SNAPSHOT_PATH = "/request/savesnapshot";
     private final String SNAPSHOT_FOLDER_NAME = "EvercamSnapshot";
@@ -151,33 +154,65 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
                 @Override
                 public void onResult(DataItemBuffer dataItems) {
                     if (dataItems.getCount() != 0) {
-                        DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItems.get(0));
-                        Asset asset = dataMapItem.getDataMap().getAsset("snapshot");
-                        if(asset == null)
+                        for(DataItem dataItem : dataItems)
                         {
-                            Log.d(TAG, "asset is null");
-                        }
-                        else
-                        {
-                            Log.d(TAG, "asset is not null");
-                            final Bitmap bitmap = loadBitmapFromAsset(asset);
-                            if(bitmap == null)
-                            {
-                                Log.d(TAG, "image is null");
-                            }
-                            else
-                            {
-                                Log.d(TAG, "image is not null");
-                                String path = save(bitmap);
-                                updateGallery(path);
+                            DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
+                            final Asset asset = dataMapItem.getDataMap().getAsset("snapshot");
 
-                                new SendMessageTask(MESSAGE_SNAPSHOT_SAVED_PATH,null).execute();
-                            }
+                            new FetchSnapshotTask(asset).execute();
                         }
                     }
                     dataItems.release();
                 }
             });
+        }
+    }
+
+    private class FetchSnapshotTask extends AsyncTask<Void,Void,Boolean>
+    {
+        private Asset asset;
+
+        public FetchSnapshotTask(Asset asset)
+        {
+            this.asset = asset;
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params)
+        {
+            if(asset == null)
+            {
+                Log.d(TAG, "asset is null");
+              //  continue;
+            }
+            else
+            {
+                Log.d(TAG, "asset is not null");
+
+                final Bitmap bitmap = loadBitmapFromAsset(asset);
+                if(bitmap == null)
+                {
+                    Log.d(TAG, "image is null");
+                }
+                else
+                {
+                    Log.d(TAG, "image is not null");
+                    String path = save(bitmap);
+                    updateGallery(path);
+                    return true;
+
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute (Boolean isSuccess)
+        {
+            if(isSuccess)
+            {
+                new SendMessageTask(MESSAGE_SNAPSHOT_SAVED_PATH,null).execute();
+            }
         }
     }
 
@@ -194,7 +229,7 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         }
         // convert asset into a file descriptor and block until it's ready
         InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient, asset).await().getInputStream();
-        mGoogleApiClient.disconnect();
+     //   mGoogleApiClient.disconnect();
 
         if(assetInputStream == null)
         {
@@ -205,13 +240,50 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         return BitmapFactory.decodeStream(assetInputStream);
     }
 
-    private void sendImageAndNotifyWearable (Bitmap bitmap)
+    private boolean sendImageAndNotifyWearable (Bitmap bitmap)
     {
         Asset asset = createAssetFromBitmap(bitmap);
         PutDataMapRequest dataMap = PutDataMapRequest.create("/image");
         dataMap.getDataMap().putAsset("snapshot", asset);
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mGoogleApiClient, request);
+
+        DataApi.DataItemResult result = pendingResult.await();
+        if(result.getStatus().isSuccess())
+        {
+            Log.d(TAG, "Image asset updated");
+            return true;
+        }
+        else
+        {
+            Log.d(TAG, "Failed to update asset");
+            return false;
+        }
+    }
+
+    private class UploadSnapshotTask extends AsyncTask<Void,Void,Boolean>
+    {
+        private Bitmap bitmap;
+
+        public UploadSnapshotTask(Bitmap bitmap)
+        {
+            this.bitmap = bitmap;
+        }
+
+        @Override
+        protected Boolean doInBackground (Void... params)
+        {
+            return sendImageAndNotifyWearable(bitmap);
+        }
+
+        @Override
+        protected void onPostExecute (Boolean isSuccess)
+        {
+            if(isSuccess)
+            {
+               new SendMessageTask(MESSAGE_SNAPSHOT_UPDATED_PATH, null).execute();
+            }
+        }
     }
 
     private void sendCameraListAndNotifyWearable(ArrayList<Camera> cameraArrayList)
@@ -294,7 +366,8 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
             if(bitmap != null)
             {
                 Log.d(TAG, "Image not null");
-                sendImageAndNotifyWearable(bitmap);
+               // sendImageAndNotifyWearable(bitmap);
+                new UploadSnapshotTask(bitmap).execute();
             }
             else
             {

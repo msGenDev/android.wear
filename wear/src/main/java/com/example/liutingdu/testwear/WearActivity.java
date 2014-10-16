@@ -3,10 +3,12 @@ package com.example.liutingdu.testwear;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.CircledImageView;
 import android.support.wearable.view.WatchViewStub;
 import android.support.wearable.view.WearableListView;
@@ -27,6 +29,7 @@ import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
@@ -49,7 +52,9 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     public final String REQUEST_SAVE_SNAPSHOT_PATH = "/request/savesnapshot";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
     public final String MESSAGE_SNAPSHOT_SAVED_PATH = "/response/save/success";
+    public final String MESSAGE_SNAPSHOT_UPDATED_PATH = "/response/snapshot";
     private final String TAG = "WearActivity";
+    private String nodeId = "";
 
     private WearableListView listView;
     private ImageView imageView;
@@ -173,6 +178,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
         for (Node node : nodes.getNodes())
         {
+            Log.d(TAG, "Node: " + node.getId() + " added!");
             results.add(node.getId());
         }
         return results;
@@ -234,6 +240,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                                                 Log.d(TAG, "circled image view on click");
                                                 saveLayout.setVisibility(View.GONE);
                                                 progressBar.setVisibility(View.VISIBLE);
+
                                                 new SendMessageTask(REQUEST_SAVE_SNAPSHOT_PATH, null).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                                             }
                                         });
@@ -265,7 +272,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         }
         // convert asset into a file descriptor and block until it's ready
         InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient, asset).await().getInputStream();
-        mGoogleApiClient.disconnect();
+      //  mGoogleApiClient.disconnect();
 
         if(assetInputStream == null)
         {
@@ -305,7 +312,23 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         }
         else if(messageEvent.getPath().equals(MESSAGE_SNAPSHOT_SAVED_PATH))
         {
+            this.runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run ()
+                {
+                    progressBar.setVisibility(View.GONE);
+                    imageView.setVisibility(View.GONE);
+                    saveLayout.setVisibility(View.GONE);
+                    listView.setVisibility(View.VISIBLE);
+                }
+            });
 
+            Intent intent = new Intent(WearActivity.this, ConfirmationActivity.class);
+
+            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
+            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Succeeded!");
+            startActivity(intent);
         }
     }
 
@@ -384,7 +407,13 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         protected Void doInBackground (Void... params)
         {
             Log.d(TAG, "Start send message");
-            String nodeId = getNodes().iterator().next();
+            Collection<String> nodes = getNodes();
+            String nodeId = "";
+            if(nodes.size() > 0)
+            {
+                nodeId = nodes.iterator().next();
+            }
+            Log.d(TAG, "Node id:" + nodeId);
             MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, PATH, data).await();
 
             if(!result.getStatus().isSuccess())
