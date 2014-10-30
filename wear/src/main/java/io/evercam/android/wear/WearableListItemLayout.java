@@ -1,4 +1,4 @@
-package com.example.liutingdu.testwear;
+package io.evercam.android.wear;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import io.evercam.android.wear.R;
 
 public class WearableListItemLayout extends LinearLayout implements WearableListView.Item
 {

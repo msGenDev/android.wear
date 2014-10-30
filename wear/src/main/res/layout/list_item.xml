@@ -1,4 +1,4 @@
-<com.example.liutingdu.testwear.WearableListItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<io.evercam.android.wear.WearableListItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="80dp">
@@ -20,4 +20,4 @@
         android:fontFamily="sans-serif-condensed-light"
         android:lineSpacingExtra="-4sp"
         android:textSize="16sp" />
-</com.example.liutingdu.testwear.WearableListItemLayout>
+</io.evercam.android.wear.WearableListItemLayout>

@@ -1,4 +1,4 @@
-package com.example.liutingdu.testwear;
+package io.evercam.android.wear;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
@@ -31,7 +31,7 @@ public class SingleMediaScanner implements MediaScannerConnection.MediaScannerCo
         {
             connection.scanFile(imagepath, null);
         }
-        catch (java.lang.IllegalStateException e)
+        catch (IllegalStateException e)
         {
         }
     }

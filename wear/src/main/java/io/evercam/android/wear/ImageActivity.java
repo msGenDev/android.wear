@@ -1,9 +1,11 @@
-package com.example.liutingdu.testwear;
+package io.evercam.android.wear;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
+
+import io.evercam.android.wear.R;
 
 public class ImageActivity extends Activity
 {

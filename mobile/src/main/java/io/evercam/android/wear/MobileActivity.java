@@ -1,4 +1,4 @@
-package com.example.liutingdu.testwear;
+package io.evercam.android.wear;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,13 +8,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
+import io.evercam.android.wear.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -67,6 +66,7 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mobile);
+
         mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks()
         {
             @Override
@@ -200,7 +200,6 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
                     String path = save(bitmap);
                     updateGallery(path);
                     return true;
-
                 }
             }
             return false;
@@ -346,7 +345,7 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         {
 
             Bitmap bitmap = null;
-            API.setUserKeyPair("83d44e31781b88c0c73bded662be28bc", "614f4cb6");
+            API.setUserKeyPair("279ea0827ba989f90e7fc2976aa9677b", "69499a78");
             try
             {
                 InputStream inputStream = Camera.getSnapshotByCameraId(cameraId);
@@ -382,10 +381,10 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         protected ArrayList<Camera> doInBackground (Void... params)
         {
             ArrayList<Camera> cameraArrayList = new ArrayList<Camera>();
-            API.setUserKeyPair("83d44e31781b88c0c73bded662be28bc", "614f4cb6");
+            API.setUserKeyPair("279ea0827ba989f90e7fc2976aa9677b", "69499a78");
             try
             {
-                cameraArrayList = User.getCameras("liutingd", true, false);
+                cameraArrayList = User.getCameras("marco", true, false);
             }
             catch (EvercamException e)
             {

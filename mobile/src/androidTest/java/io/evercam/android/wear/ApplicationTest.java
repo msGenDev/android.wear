@@ -1,4 +1,4 @@
-package com.example.liutingdu.testwear;
+package io.evercam.android.wear;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

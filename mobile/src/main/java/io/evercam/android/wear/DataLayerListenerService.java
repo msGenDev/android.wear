@@ -1,4 +1,4 @@
-//package com.example.liutingdu.testwear;
+package io.evercam.android.wear;//package com.example.liutingdu.testwear;
 //
 //import android.net.Uri;
 //import android.util.Log;
