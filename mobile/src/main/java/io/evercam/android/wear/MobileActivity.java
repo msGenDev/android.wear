@@ -1,6 +1,7 @@
 package io.evercam.android.wear;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -8,10 +9,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import io.evercam.android.wear.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -51,7 +54,7 @@ import io.evercam.User;
 public class MobileActivity extends ActionBarActivity implements MessageApi.MessageListener
 {
 
-    private final String TAG = "MobileActivity";
+    private final String TAG = "evercamwear-MobileActivity";
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
@@ -60,12 +63,20 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
     public final String REQUEST_SAVE_SNAPSHOT_PATH = "/request/savesnapshot";
     private final String SNAPSHOT_FOLDER_NAME = "EvercamSnapshot";
     private GoogleApiClient mGoogleApiClient;
+    private TextView welcomeTextView;
+    private SharedPreferences sharedPreference;
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mobile);
+
+        sharedPreference = PreferenceManager.getDefaultSharedPreferences(this);
+
+        welcomeTextView = (TextView) findViewById(R.id.welcome_textview);
+
+        welcomeTextView.setText("Hello, " +  PrefsManager.getUsername(sharedPreference));
 
         mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks()
         {
@@ -127,8 +138,11 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if(id == R.id.action_settings)
+        if(id == R.id.action_logout)
         {
+            PrefsManager.clearAccountDetails(sharedPreference);
+            finish();
+            startActivity(new Intent(MobileActivity.this, MainActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -343,9 +357,12 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         @Override
         protected Bitmap doInBackground (Void... params)
         {
-
             Bitmap bitmap = null;
-            API.setUserKeyPair("279ea0827ba989f90e7fc2976aa9677b", "69499a78");
+            String apiKey = PrefsManager.getUserApiKey(sharedPreference);
+            String apiId = PrefsManager.getUserApiId(sharedPreference);
+
+            API.setUserKeyPair(apiKey, apiId);
+
             try
             {
                 InputStream inputStream = Camera.getSnapshotByCameraId(cameraId);
@@ -380,18 +397,33 @@ public class MobileActivity extends ActionBarActivity implements MessageApi.Mess
         @Override
         protected ArrayList<Camera> doInBackground (Void... params)
         {
-            ArrayList<Camera> cameraArrayList = new ArrayList<Camera>();
-            API.setUserKeyPair("279ea0827ba989f90e7fc2976aa9677b", "69499a78");
+            ArrayList<Camera> onlineCameraArrayList = new ArrayList<Camera>();
+            String apiKey = PrefsManager.getUserApiKey(sharedPreference);
+            String apiId = PrefsManager.getUserApiId(sharedPreference);
+            String username = PrefsManager.getUsername(sharedPreference);
+
+            API.setUserKeyPair(apiKey, apiId);
             try
             {
-                cameraArrayList = User.getCameras("marco", true, false);
+                ArrayList<Camera> cameraArrayList = User.getCameras(username, true, false);
+                if(cameraArrayList.size() > 0)
+                {
+                    for(int index = 0 ; index < cameraArrayList.size() ; index ++)
+                    {
+                        Camera camera = cameraArrayList.get(index);
+                        if(camera.isOnline())
+                        {
+                            onlineCameraArrayList.add(camera);
+                        }
+                    }
+                }
             }
             catch (EvercamException e)
             {
                 e.printStackTrace();
             }
 
-            return cameraArrayList;
+            return onlineCameraArrayList;
         }
 
         @Override

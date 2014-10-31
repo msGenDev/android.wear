@@ -7,14 +7,6 @@
     tools:context="io.evercam.android.wear.ImageActivity"
     tools:deviceIds="wear_round">
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_round" />
-
     <LinearLayout
         android:id="@+id/save_layout"
         android:orientation="vertical"
@@ -26,7 +18,7 @@
             android:id="@+id/save_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher"
+            android:src="@drawable/icon_save"
             app:circle_color="@color/action_button"
             app:circle_radius="52dp"
             app:circle_border_width="0dp" />

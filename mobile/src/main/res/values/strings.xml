@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Evercam Wear</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_logout">Sign out</string>
     <string name="title_activity_main">MainActivity</string>
 
 </resources>
