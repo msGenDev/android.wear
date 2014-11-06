@@ -16,10 +16,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.data.FreezableUtils;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataItemBuffer;
@@ -54,8 +52,6 @@ public class DataLayerListenerService extends WearableListenerService
 {
 
     private static final String TAG = "DataLayerListenerService";
-//    private static final String START_ACTIVITY_PATH = "/start-activity";
-//    private static final String DATA_ITEM_RECEIVED_PATH = "/data-item-received";
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
@@ -291,7 +287,6 @@ public class DataLayerListenerService extends WearableListenerService
         }
         // convert asset into a file descriptor and block until it's ready
         InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient, asset).await().getInputStream();
-        //   mGoogleApiClient.disconnect();
 
         if(assetInputStream == null)
         {
@@ -421,7 +416,6 @@ public class DataLayerListenerService extends WearableListenerService
             if(bitmap != null)
             {
                 Log.d(TAG, "Image not null");
-                // sendImageAndNotifyWearable(bitmap);
                 new UploadSnapshotTask(bitmap).execute();
             }
             else
