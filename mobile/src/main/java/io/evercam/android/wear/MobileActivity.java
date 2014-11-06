@@ -50,10 +50,8 @@ import io.evercam.Camera;
 import io.evercam.EvercamException;
 import io.evercam.User;
 
-
 public class MobileActivity extends ActionBarActivity implements MessageApi.MessageListener
 {
-
     private final String TAG = "evercamwear-MobileActivity";
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
