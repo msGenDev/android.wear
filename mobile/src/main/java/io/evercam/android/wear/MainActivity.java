@@ -8,11 +8,11 @@ import android.support.v7.app.ActionBarActivity;
 
 public class MainActivity extends ActionBarActivity
 {
-
     private SharedPreferences sharedPrefs;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -29,7 +29,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onStop ()
+    protected void onStop()
     {
         super.onStop();
         finish();

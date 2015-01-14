@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,7 +39,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.evercam.API;
@@ -65,7 +63,7 @@ public class DataLayerListenerService extends WearableListenerService
     @Override
     public void onDataChanged(DataEventBuffer dataEvents)
     {
-         Log.d(TAG, "onDataChanged: " + dataEvents);
+        Log.d(TAG, "onDataChanged: " + dataEvents);
     }
 
     @Override
@@ -79,7 +77,7 @@ public class DataLayerListenerService extends WearableListenerService
                 new RequestCameraListTask().execute();
             }
         }
-        else if (messageEvent.getPath().equals(REQUEST_SNAPSHOT_PATH))
+        else if(messageEvent.getPath().equals(REQUEST_SNAPSHOT_PATH))
         {
             if(connectGoogleApiClientSuccess())
             {
@@ -91,15 +89,16 @@ public class DataLayerListenerService extends WearableListenerService
         {
             if(connectGoogleApiClientSuccess())
             {
-                PendingResult<DataItemBuffer> results = Wearable.DataApi.getDataItems(mGoogleApiClient);
+                PendingResult<DataItemBuffer> results = Wearable.DataApi.getDataItems
+                        (mGoogleApiClient);
                 results.setResultCallback(new ResultCallback<DataItemBuffer>()
                 {
                     @Override
-                    public void onResult (DataItemBuffer dataItems)
+                    public void onResult(DataItemBuffer dataItems)
                     {
                         if(dataItems.getCount() != 0)
                         {
-                            for (DataItem dataItem : dataItems)
+                            for(DataItem dataItem : dataItems)
                             {
                                 DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
                                 final Asset asset = dataMapItem.getDataMap().getAsset("snapshot");
@@ -116,14 +115,11 @@ public class DataLayerListenerService extends WearableListenerService
 
     private boolean connectGoogleApiClientSuccess()
     {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .build();
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Wearable.API).build();
 
-        ConnectionResult connectionResult =
-                mGoogleApiClient.blockingConnect(30, TimeUnit.SECONDS);
+        ConnectionResult connectionResult = mGoogleApiClient.blockingConnect(30, TimeUnit.SECONDS);
 
-        if (connectionResult.isSuccess())
+        if(connectionResult.isSuccess())
         {
             return true;
         }
@@ -143,14 +139,14 @@ public class DataLayerListenerService extends WearableListenerService
         ArrayList<String> cameraIdList = new ArrayList<String>();
         ArrayList<String> cameraNameList = new ArrayList<String>();
 
-        for(int index = 0; index < cameraArrayList.size(); index ++)
+        for(int index = 0; index < cameraArrayList.size(); index++)
         {
             try
             {
                 cameraIdList.add(cameraArrayList.get(index).getId());
                 cameraNameList.add(cameraArrayList.get(index).getName());
             }
-            catch (EvercamException e)
+            catch(EvercamException e)
             {
                 Log.e(TAG, e.toString());
                 continue;
@@ -162,8 +158,8 @@ public class DataLayerListenerService extends WearableListenerService
 
         dataMap.getDataMap().putAll(map);
         PutDataRequest request = dataMap.asPutDataRequest();
-        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
-                .putDataItem(mGoogleApiClient, request);
+        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem
+                (mGoogleApiClient, request);
         Log.d(TAG, "Data uploaded as data item");
 
         //Notify wearable by sending a message, because if put same data to
@@ -171,25 +167,27 @@ public class DataLayerListenerService extends WearableListenerService
         new SendMessageTask(MESSAGE_CAMERA_LIST_UPDATED_PATH, null).execute();
     }
 
-    private Collection<String> getNodes ()
+    private Collection<String> getNodes()
     {
         Log.d(TAG, "Getting notes");
         HashSet<String> results = new HashSet<String>();
-        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-        for (Node node : nodes.getNodes())
+        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes
+                (mGoogleApiClient).await();
+        for(Node node : nodes.getNodes())
         {
             results.add(node.getId());
         }
         return results;
     }
 
-    private boolean sendImageAndNotifyWearable (Bitmap bitmap)
+    private boolean sendImageAndNotifyWearable(Bitmap bitmap)
     {
         Asset asset = createAssetFromBitmap(bitmap);
         PutDataMapRequest dataMap = PutDataMapRequest.create("/image");
         dataMap.getDataMap().putAsset("snapshot", asset);
         PutDataRequest request = dataMap.asPutDataRequest();
-        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mGoogleApiClient, request);
+        PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem
+                (mGoogleApiClient, request);
 
         DataApi.DataItemResult result = pendingResult.await();
         if(result.getStatus().isSuccess())
@@ -204,7 +202,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
     }
 
-    private static Asset createAssetFromBitmap (Bitmap bitmap)
+    private static Asset createAssetFromBitmap(Bitmap bitmap)
     {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
@@ -217,16 +215,16 @@ public class DataLayerListenerService extends WearableListenerService
     public String save(Bitmap snapshotBitmap)
     {
         int i = 0;
-        String fileDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                + File.separator + SNAPSHOT_FOLDER_NAME;
+        String fileDirectory = Environment.getExternalStoragePublicDirectory(Environment
+                .DIRECTORY_PICTURES) + File.separator + SNAPSHOT_FOLDER_NAME;
 
-        File folder = new File(fileDirectory );
-        if (!folder.exists())
+        File folder = new File(fileDirectory);
+        if(!folder.exists())
         {
             folder.mkdirs();
         }
 
-        if (snapshotBitmap != null)
+        if(snapshotBitmap != null)
         {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             snapshotBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
@@ -235,7 +233,7 @@ public class DataLayerListenerService extends WearableListenerService
             String filename = "snapshot" + Integer.toString(i) + ".jpg";
 
             File f = new File(folder.getPath() + File.separator + filename);
-            while (f.exists())
+            while(f.exists())
             {
                 i++;
                 filename = "snapshot" + Integer.toString(i) + ".jpg";
@@ -249,14 +247,14 @@ public class DataLayerListenerService extends WearableListenerService
                 fo.write(bytes.toByteArray());
                 fo.close();
             }
-            catch (IOException e)
+            catch(IOException e)
             {
                 e.printStackTrace();
             }
         }
 
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                + File.separator + SNAPSHOT_FOLDER_NAME + "/snapshot" + i + ".jpg";
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) +
+                File.separator + SNAPSHOT_FOLDER_NAME + "/snapshot" + i + ".jpg";
     }
 
     /**
@@ -264,17 +262,19 @@ public class DataLayerListenerService extends WearableListenerService
      */
     public void updateGallery(String path)
     {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
         {
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))));
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStoragePublicDirectory
+                            (Environment.DIRECTORY_PICTURES))));
         }
         else
         {
-            new SingleMediaScanner(this,path);
+            new SingleMediaScanner(this, path);
         }
     }
 
-    public Bitmap loadBitmapFromAsset (Asset asset)
+    public Bitmap loadBitmapFromAsset(Asset asset)
     {
         if(asset == null)
         {
@@ -286,7 +286,8 @@ public class DataLayerListenerService extends WearableListenerService
             return null;
         }
         // convert asset into a file descriptor and block until it's ready
-        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient, asset).await().getInputStream();
+        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient,
+                asset).await().getInputStream();
 
         if(assetInputStream == null)
         {
@@ -300,9 +301,10 @@ public class DataLayerListenerService extends WearableListenerService
     private class RequestCameraListTask extends AsyncTask<Void, Void, ArrayList<Camera>>
     {
         @Override
-        protected ArrayList<Camera> doInBackground (Void... params)
+        protected ArrayList<Camera> doInBackground(Void... params)
         {
-            SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences(DataLayerListenerService.this);
+            SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences
+                    (DataLayerListenerService.this);
 
             ArrayList<Camera> onlineCameraArrayList = new ArrayList<Camera>();
             String apiKey = PrefsManager.getUserApiKey(sharedPreference);
@@ -315,7 +317,7 @@ public class DataLayerListenerService extends WearableListenerService
                 ArrayList<Camera> cameraArrayList = User.getCameras(username, true, false);
                 if(cameraArrayList.size() > 0)
                 {
-                    for(int index = 0 ; index < cameraArrayList.size() ; index ++)
+                    for(int index = 0; index < cameraArrayList.size(); index++)
                     {
                         Camera camera = cameraArrayList.get(index);
                         if(camera.isOnline())
@@ -325,7 +327,7 @@ public class DataLayerListenerService extends WearableListenerService
                     }
                 }
             }
-            catch (EvercamException e)
+            catch(EvercamException e)
             {
                 e.printStackTrace();
             }
@@ -334,7 +336,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected void onPostExecute (ArrayList<Camera> cameraArrayList)
+        protected void onPostExecute(ArrayList<Camera> cameraArrayList)
         {
             if(cameraArrayList.size() > 0)
             {
@@ -360,11 +362,12 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected Void doInBackground (Void... params)
+        protected Void doInBackground(Void... params)
         {
             Log.d(TAG, "Start send message");
             String nodeId = getNodes().iterator().next();
-            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, PATH, data).await();
+            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage
+                    (mGoogleApiClient, nodeId, PATH, data).await();
 
             if(!result.getStatus().isSuccess())
             {
@@ -388,10 +391,11 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected Bitmap doInBackground (Void... params)
+        protected Bitmap doInBackground(Void... params)
         {
             Bitmap bitmap = null;
-            SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences(DataLayerListenerService.this);
+            SharedPreferences sharedPreference = PreferenceManager.getDefaultSharedPreferences
+                    (DataLayerListenerService.this);
             String apiKey = PrefsManager.getUserApiKey(sharedPreference);
             String apiId = PrefsManager.getUserApiId(sharedPreference);
 
@@ -402,7 +406,7 @@ public class DataLayerListenerService extends WearableListenerService
                 InputStream inputStream = Camera.getSnapshotByCameraId(cameraId);
                 bitmap = BitmapFactory.decodeStream(inputStream);
             }
-            catch (EvercamException e)
+            catch(EvercamException e)
             {
                 e.printStackTrace();
             }
@@ -411,7 +415,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected void onPostExecute (Bitmap bitmap)
+        protected void onPostExecute(Bitmap bitmap)
         {
             if(bitmap != null)
             {
@@ -425,7 +429,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
     }
 
-    private class UploadSnapshotTask extends AsyncTask<Void,Void,Boolean>
+    private class UploadSnapshotTask extends AsyncTask<Void, Void, Boolean>
     {
         private Bitmap bitmap;
 
@@ -435,13 +439,13 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected Boolean doInBackground (Void... params)
+        protected Boolean doInBackground(Void... params)
         {
             return sendImageAndNotifyWearable(bitmap);
         }
 
         @Override
-        protected void onPostExecute (Boolean isSuccess)
+        protected void onPostExecute(Boolean isSuccess)
         {
             if(isSuccess)
             {
@@ -450,7 +454,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
     }
 
-    private class FetchSnapshotTask extends AsyncTask<Void,Void,Boolean>
+    private class FetchSnapshotTask extends AsyncTask<Void, Void, Boolean>
     {
         private Asset asset;
 
@@ -460,7 +464,7 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected Boolean doInBackground (Void... params)
+        protected Boolean doInBackground(Void... params)
         {
             if(asset == null)
             {
@@ -488,11 +492,11 @@ public class DataLayerListenerService extends WearableListenerService
         }
 
         @Override
-        protected void onPostExecute (Boolean isSuccess)
+        protected void onPostExecute(Boolean isSuccess)
         {
             if(isSuccess)
             {
-                new SendMessageTask(MESSAGE_SNAPSHOT_SAVED_PATH,null).execute();
+                new SendMessageTask(MESSAGE_SNAPSHOT_SAVED_PATH, null).execute();
             }
         }
     }

@@ -1,12 +1,9 @@
 package io.evercam.android.wear;
 
-import java.util.HashMap;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -25,7 +22,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import io.evercam.*;
+
+import io.evercam.API;
+import io.evercam.ApiKeyPair;
+import io.evercam.EvercamException;
+import io.evercam.User;
 
 public class LoginActivity extends Activity
 {
@@ -55,17 +56,18 @@ public class LoginActivity extends Activity
 
         /**
          * FIXME: Developer key and id has been removed from Evercam, I am keeping it here only
-         * because it hasn't been updated in Java wrapper
-        **/
+         * because it hasn't been updated in Evercam Java wrapper
+         **/
         API.setDeveloperKeyPair("8f0edbf9b3c69cc38dad662d2aa82d33", "16486214");
 
         usernameView = (EditText) findViewById(R.id.email);
         passwordView = (EditText) findViewById(R.id.password);
-        passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener(){
+        passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener()
+        {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent)
             {
-                if (id == R.id.login || id == EditorInfo.IME_NULL)
+                if(id == R.id.login || id == EditorInfo.IME_NULL)
                 {
                     attemptLogin();
                     return true;
@@ -88,16 +90,7 @@ public class LoginActivity extends Activity
         });
 
         signUpLink.setVisibility(View.GONE);
-//         TODO: Sign up
-//        signUpLink.setOnClickListener(new OnClickListener(){
-//
-//            @Override
-//            public void onClick(View v)
-//            {
-//                new CheckInternetTaskLogin(LoginActivity.this, CheckInternetTaskLogin.TAG_SIGNUP)
-//                        .execute();
-//            }
-//        });
+        //TODO: Sign up
     }
 
     @Override
@@ -120,7 +113,7 @@ public class LoginActivity extends Activity
 
     public void attemptLogin()
     {
-        if (userLoginTask != null)
+        if(userLoginTask != null)
         {
             return;
         }
@@ -134,33 +127,33 @@ public class LoginActivity extends Activity
         boolean cancel = false;
         View focusView = null;
 
-        if (TextUtils.isEmpty(password))
+        if(TextUtils.isEmpty(password))
         {
             passwordView.setError(getString(R.string.error_password_required));
             focusView = passwordView;
             cancel = true;
         }
-        else if (password.contains(" "))
+        else if(password.contains(" "))
         {
             passwordView.setError(getString(R.string.error_invalid_password));
             focusView = passwordView;
             cancel = true;
         }
 
-        if (TextUtils.isEmpty(username))
+        if(TextUtils.isEmpty(username))
         {
             usernameView.setError(getString(R.string.error_username_required));
             focusView = usernameView;
             cancel = true;
         }
-        else if (username.contains(" "))
+        else if(username.contains(" "))
         {
             usernameView.setError(getString(R.string.error_invalid_username));
             focusView = usernameView;
             cancel = true;
         }
 
-        if (cancel)
+        if(cancel)
         {
             focusView.requestFocus();
         }
@@ -179,29 +172,31 @@ public class LoginActivity extends Activity
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show)
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
         {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             loginStatusView.setVisibility(View.VISIBLE);
-            loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
-                    .setListener(new AnimatorListenerAdapter(){
-                        @Override
-                        public void onAnimationEnd(Animator animation)
-                        {
-                            loginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-                        }
-                    });
+            loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0).setListener
+                    (new AnimatorListenerAdapter()
+            {
+                @Override
+                public void onAnimationEnd(Animator animation)
+                {
+                    loginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
 
             loginFormView.setVisibility(View.VISIBLE);
-            loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
-                    .setListener(new AnimatorListenerAdapter(){
-                        @Override
-                        public void onAnimationEnd(Animator animation)
-                        {
-                            loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                        }
-                    });
+            loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener
+                    (new AnimatorListenerAdapter()
+            {
+                @Override
+                public void onAnimationEnd(Animator animation)
+                {
+                    loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
         }
         else
         {
@@ -228,7 +223,7 @@ public class LoginActivity extends Activity
                 PrefsManager.saveAccountDetails(sharedPrefs, evercamUser);
                 return true;
             }
-            catch (EvercamException e)
+            catch(EvercamException e)
             {
                 error = e.getMessage();
                 Log.e(TAG, error);
@@ -242,7 +237,7 @@ public class LoginActivity extends Activity
             userLoginTask = null;
             showProgress(false);
 
-            if (success)
+            if(success)
             {
                 startCapture();
             }
@@ -279,8 +274,8 @@ public class LoginActivity extends Activity
     private void setUnderLine()
     {
         signUpLink = (TextView) findViewById(R.id.signupLink);
-        SpannableString spanString = new SpannableString(this.getResources().getString(
-                R.string.create_account));
+        SpannableString spanString = new SpannableString(this.getResources().getString(R.string
+                .create_account));
         spanString.setSpan(new UnderlineSpan(), 0, spanString.length(), 0);
         signUpLink.setText(spanString);
     }

@@ -5,15 +5,13 @@ import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
 
-import io.evercam.android.wear.R;
-
 public class ImageActivity extends Activity
 {
 
     private TextView mTextView;
 
     @Override
-    protected void onCreate (Bundle savedInstanceState)
+    protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
@@ -21,7 +19,7 @@ public class ImageActivity extends Activity
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener()
         {
             @Override
-            public void onLayoutInflated (WatchViewStub stub)
+            public void onLayoutInflated(WatchViewStub stub)
             {
                 mTextView = (TextView) stub.findViewById(R.id.text);
             }

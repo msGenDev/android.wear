@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import io.evercam.android.wear.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -44,7 +43,8 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 
-public class WearActivity extends Activity implements WearableListView.ClickListener, DataApi.DataListener, MessageApi.MessageListener
+public class WearActivity extends Activity implements WearableListView.ClickListener,
+        DataApi.DataListener, MessageApi.MessageListener
 {
     public final String REQUEST_SNAPSHOT_PATH = "/request/snapshot";
     public final String REQUEST_CAMERA_LIST_PATH = "/request/cameralist";
@@ -67,7 +67,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     private ArrayList<String> cameraNameList = new ArrayList<String>();
 
     @Override
-    protected void onCreate (Bundle savedInstanceState)
+    protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wear);
@@ -75,7 +75,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener()
         {
             @Override
-            public void onLayoutInflated (WatchViewStub stub)
+            public void onLayoutInflated(WatchViewStub stub)
             {
                 listView = (WearableListView) findViewById(R.id.wearable_list);
                 imageView = (ImageView) findViewById(R.id.snapshotImage);
@@ -93,7 +93,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks()
         {
             @Override
-            public void onConnected (Bundle connectionHint)
+            public void onConnected(Bundle connectionHint)
             {
                 Log.d(TAG, "onConnected: " + connectionHint);
                 // Now you can use the data layer API
@@ -102,14 +102,14 @@ public class WearActivity extends Activity implements WearableListView.ClickList
             }
 
             @Override
-            public void onConnectionSuspended (int cause)
+            public void onConnectionSuspended(int cause)
             {
                 Log.d(TAG, "onConnectionSuspended: " + cause);
             }
         }).addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener()
         {
             @Override
-            public void onConnectionFailed (ConnectionResult result)
+            public void onConnectionFailed(ConnectionResult result)
             {
                 Log.d(TAG, "onConnectionFailed: " + result);
             }
@@ -117,7 +117,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     }
 
     @Override
-    protected void onStart ()
+    protected void onStart()
     {
         super.onStart();
         Log.d(TAG, "onStart");
@@ -126,7 +126,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
 
     // WearableListView click listener
     @Override
-    public void onClick (WearableListView.ViewHolder v)
+    public void onClick(WearableListView.ViewHolder v)
     {
         Integer tag = (Integer) v.itemView.getTag();
 
@@ -138,7 +138,8 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         imageView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
 
-        new SendMessageTask(REQUEST_SNAPSHOT_PATH, retrieveCameraIdFrom(selectedCameraName).getBytes()).execute();
+        new SendMessageTask(REQUEST_SNAPSHOT_PATH, retrieveCameraIdFrom(selectedCameraName)
+                .getBytes()).execute();
 
         //        Intent intent = new Intent();
         //        intent.setClass(WearActivity.this,ImageActivity.class );
@@ -148,7 +149,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
 
     private String retrieveCameraIdFrom(String cameraName)
     {
-        for(int index = 0 ; index < cameraNameList.size() ; index ++)
+        for(int index = 0; index < cameraNameList.size(); index++)
         {
             if(cameraName.equals(cameraNameList.get(index)))
             {
@@ -170,12 +171,13 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         listView.setClickListener(WearActivity.this);
     }
 
-    private Collection<String> getNodes ()
+    private Collection<String> getNodes()
     {
         Log.d(TAG, "Getting notes");
         HashSet<String> results = new HashSet<String>();
-        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-        for (Node node : nodes.getNodes())
+        NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes
+                (mGoogleApiClient).await();
+        for(Node node : nodes.getNodes())
         {
             Log.d(TAG, "Node: " + node.getId() + " added!");
             results.add(node.getId());
@@ -184,17 +186,18 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     }
 
     @Override
-    public void onTopEmptyRegionClick ()
+    public void onTopEmptyRegionClick()
     {
     }
 
     @Override
-    public void onDataChanged (DataEventBuffer dataEvents)
+    public void onDataChanged(DataEventBuffer dataEvents)
     {
         Log.d(TAG, "onDataChanged");
-        for (DataEvent event : dataEvents)
+        for(DataEvent event : dataEvents)
         {
-            if(event.getType() == DataEvent.TYPE_CHANGED && event.getDataItem().getUri().getPath().equals("/image"))
+            if(event.getType() == DataEvent.TYPE_CHANGED && event.getDataItem().getUri().getPath
+                    ().equals("/image"))
             {
                 DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                 Asset asset = dataMapItem.getDataMap().getAsset("snapshot");
@@ -216,7 +219,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                         this.runOnUiThread(new Runnable()
                         {
                             @Override
-                            public void run ()
+                            public void run()
                             {
                                 imageView.setVisibility(View.VISIBLE);
                                 progressBar.setVisibility(View.GONE);
@@ -225,22 +228,25 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                                 imageView.setImageBitmap(bitmap);
                                 imageView.setOnClickListener(new View.OnClickListener()
                                 {
-                                    public void onClick (View v)
+                                    public void onClick(View v)
                                     {
                                         Log.d(TAG, "image view on click");
                                         imageView.setOnClickListener(null);
                                         imageView.setVisibility(View.GONE);
                                         saveLayout.setVisibility(View.VISIBLE);
-                                        circledImageView.setOnClickListener(new View.OnClickListener()
+                                        circledImageView.setOnClickListener(new View
+                                                .OnClickListener()
                                         {
                                             @Override
-                                            public void onClick (View v)
+                                            public void onClick(View v)
                                             {
                                                 Log.d(TAG, "circled image view on click");
                                                 saveLayout.setVisibility(View.GONE);
                                                 progressBar.setVisibility(View.VISIBLE);
 
-                                                new SendMessageTask(REQUEST_SAVE_SNAPSHOT_PATH, null).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                                                new SendMessageTask(REQUEST_SAVE_SNAPSHOT_PATH,
+                                                        null).executeOnExecutor(AsyncTask
+                                                        .THREAD_POOL_EXECUTOR);
                                             }
                                         });
                                     }
@@ -250,15 +256,16 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                     }
                 }
             }
-//            else if(event.getType() == DataEvent.TYPE_CHANGED && event.getDataItem().getUri().getPath().equals("/cameralist"))
-//            {
-//                Log.d(TAG, "Camera list received");
-//
-//            }
+            //            else if(event.getType() == DataEvent.TYPE_CHANGED && event.getDataItem
+            // ().getUri().getPath().equals("/cameralist"))
+            //            {
+            //                Log.d(TAG, "Camera list received");
+            //
+            //            }
         }
     }
 
-    public Bitmap loadBitmapFromAsset (Asset asset)
+    public Bitmap loadBitmapFromAsset(Asset asset)
     {
         if(asset == null)
         {
@@ -270,8 +277,9 @@ public class WearActivity extends Activity implements WearableListView.ClickList
             return null;
         }
         // convert asset into a file descriptor and block until it's ready
-        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient, asset).await().getInputStream();
-      //  mGoogleApiClient.disconnect();
+        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient,
+                asset).await().getInputStream();
+        //  mGoogleApiClient.disconnect();
 
         if(assetInputStream == null)
         {
@@ -283,23 +291,28 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     }
 
     @Override
-    public void onMessageReceived (MessageEvent messageEvent)
+    public void onMessageReceived(MessageEvent messageEvent)
     {
-        Log.d(TAG, "onMessageReceived" + messageEvent.getPath() + " " + new String(messageEvent.getData()));
+        Log.d(TAG, "onMessageReceived" + messageEvent.getPath() + " " + new String(messageEvent
+                .getData()));
 
         if(messageEvent.getPath().equals(MESSAGE_CAMERA_LIST_UPDATED_PATH))
         {
             Log.d(TAG, "Camera list updated");
 
             PendingResult<DataItemBuffer> results = Wearable.DataApi.getDataItems(mGoogleApiClient);
-            results.setResultCallback(new ResultCallback<DataItemBuffer>() {
+            results.setResultCallback(new ResultCallback<DataItemBuffer>()
+            {
                 @Override
-                public void onResult(DataItemBuffer dataItems) {
-                    if (dataItems.getCount() != 0) {
+                public void onResult(DataItemBuffer dataItems)
+                {
+                    if(dataItems.getCount() != 0)
+                    {
                         DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItems.get(0));
 
                         cameraIdList = dataMapItem.getDataMap().getStringArrayList("cameraIdList");
-                        cameraNameList = dataMapItem.getDataMap().getStringArrayList("cameraNameList");
+                        cameraNameList = dataMapItem.getDataMap().getStringArrayList
+                                ("cameraNameList");
 
                         Log.d(TAG, cameraIdList.size() + " " + cameraNameList.size());
 
@@ -314,7 +327,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
             this.runOnUiThread(new Runnable()
             {
                 @Override
-                public void run ()
+                public void run()
                 {
                     progressBar.setVisibility(View.GONE);
                     imageView.setVisibility(View.GONE);
@@ -325,7 +338,8 @@ public class WearActivity extends Activity implements WearableListView.ClickList
 
             Intent intent = new Intent(WearActivity.this, ConfirmationActivity.class);
 
-            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
+            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+                    ConfirmationActivity.SUCCESS_ANIMATION);
             intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Succeeded!");
             startActivity(intent);
         }
@@ -338,7 +352,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         private String[] mDataset;
 
         // Provide a suitable constructor (depends on the kind of dataset)
-        public Adapter (Context context, String[] dataset)
+        public Adapter(Context context, String[] dataset)
         {
             mContext = context;
             mInflater = LayoutInflater.from(context);
@@ -348,7 +362,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         // Create new views for list items
         // (invoked by the WearableListView's layout manager)
         @Override
-        public WearableListView.ViewHolder onCreateViewHolder (ViewGroup parent, int viewType)
+        public WearableListView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
         {
             // Inflate our custom layout for list items
             return new ItemViewHolder(mInflater.inflate(R.layout.list_item, null));
@@ -358,7 +372,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         // Instead of creating new views, the list tries to recycle existing ones
         // (invoked by the WearableListView's layout manager)
         @Override
-        public void onBindViewHolder (WearableListView.ViewHolder holder, int position)
+        public void onBindViewHolder(WearableListView.ViewHolder holder, int position)
         {
             // retrieve the text view
             ItemViewHolder itemHolder = (ItemViewHolder) holder;
@@ -372,7 +386,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         // Return the size of your dataset
         // (invoked by the WearableListView's layout manager)
         @Override
-        public int getItemCount ()
+        public int getItemCount()
         {
             return mDataset.length;
         }
@@ -382,7 +396,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         {
             private TextView textView;
 
-            public ItemViewHolder (View itemView)
+            public ItemViewHolder(View itemView)
             {
                 super(itemView);
                 // find the text view within the custom item's layout
@@ -403,7 +417,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         }
 
         @Override
-        protected Void doInBackground (Void... params)
+        protected Void doInBackground(Void... params)
         {
             Log.d(TAG, "Start send message");
             Collection<String> nodes = getNodes();
@@ -413,7 +427,8 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                 nodeId = nodes.iterator().next();
             }
             Log.d(TAG, "Node id:" + nodeId);
-            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, nodeId, PATH, data).await();
+            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage
+                    (mGoogleApiClient, nodeId, PATH, data).await();
 
             if(!result.getStatus().isSuccess())
             {

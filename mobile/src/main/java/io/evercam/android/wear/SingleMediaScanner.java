@@ -6,21 +6,21 @@ import android.net.Uri;
 
 public class SingleMediaScanner implements MediaScannerConnection.MediaScannerConnectionClient
 {
-    MediaScannerConnection connection;
-    Context ctxt;
+    private MediaScannerConnection connection;
+    private Context context;
     private String imagepath;
 
-    public SingleMediaScanner(Context ctxt, String url)
+    public SingleMediaScanner(Context context, String url)
     {
-        this.ctxt = ctxt;
+        this.context = context;
         startScan(url);
     }
 
     public void startScan(String url)
     {
         imagepath = url;
-        if (connection != null) connection.disconnect();
-        connection = new MediaScannerConnection(ctxt, this);
+        if(connection != null) connection.disconnect();
+        connection = new MediaScannerConnection(context, this);
         connection.connect();
     }
 
@@ -31,7 +31,7 @@ public class SingleMediaScanner implements MediaScannerConnection.MediaScannerCo
         {
             connection.scanFile(imagepath, null);
         }
-        catch (IllegalStateException e)
+        catch(IllegalStateException e)
         {
         }
     }
