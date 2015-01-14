@@ -51,16 +51,13 @@ public class WearActivity extends Activity implements WearableListView.ClickList
     public final String REQUEST_SAVE_SNAPSHOT_PATH = "/request/savesnapshot";
     public final String MESSAGE_CAMERA_LIST_UPDATED_PATH = "/response/cameralist";
     public final String MESSAGE_SNAPSHOT_SAVED_PATH = "/response/save/success";
-    public final String MESSAGE_SNAPSHOT_UPDATED_PATH = "/response/snapshot";
     private final String TAG = "WearActivity";
-    private String nodeId = "";
 
     private WearableListView listView;
     private ImageView imageView;
     private ProgressBar progressBar;
     private CircledImageView circledImageView;
     private LinearLayout saveLayout;
-    private TextView mTextView;
     private GoogleApiClient mGoogleApiClient;
 
     private ArrayList<String> cameraIdList = new ArrayList<String>();
@@ -96,7 +93,7 @@ public class WearActivity extends Activity implements WearableListView.ClickList
             public void onConnected(Bundle connectionHint)
             {
                 Log.d(TAG, "onConnected: " + connectionHint);
-                // Now you can use the data layer API
+                // Now use the data layer API
                 Wearable.DataApi.addListener(mGoogleApiClient, WearActivity.this);
                 Wearable.MessageApi.addListener(mGoogleApiClient, WearActivity.this);
             }
@@ -140,11 +137,6 @@ public class WearActivity extends Activity implements WearableListView.ClickList
 
         new SendMessageTask(REQUEST_SNAPSHOT_PATH, retrieveCameraIdFrom(selectedCameraName)
                 .getBytes()).execute();
-
-        //        Intent intent = new Intent();
-        //        intent.setClass(WearActivity.this,ImageActivity.class );
-        //        this.startActivity(intent);
-
     }
 
     private String retrieveCameraIdFrom(String cameraName)
@@ -256,12 +248,6 @@ public class WearActivity extends Activity implements WearableListView.ClickList
                     }
                 }
             }
-            //            else if(event.getType() == DataEvent.TYPE_CHANGED && event.getDataItem
-            // ().getUri().getPath().equals("/cameralist"))
-            //            {
-            //                Log.d(TAG, "Camera list received");
-            //
-            //            }
         }
     }
 
@@ -279,7 +265,6 @@ public class WearActivity extends Activity implements WearableListView.ClickList
         // convert asset into a file descriptor and block until it's ready
         InputStream assetInputStream = Wearable.DataApi.getFdForAsset(mGoogleApiClient,
                 asset).await().getInputStream();
-        //  mGoogleApiClient.disconnect();
 
         if(assetInputStream == null)
         {
