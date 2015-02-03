@@ -54,12 +54,6 @@ public class LoginActivity extends Activity
         setContentView(R.layout.activity_login);
         setUnderLine();
 
-        /**
-         * FIXME: Developer key and id has been removed from Evercam, I am keeping it here only
-         * because it hasn't been updated in Evercam Java wrapper
-         **/
-        API.setDeveloperKeyPair("8f0edbf9b3c69cc38dad662d2aa82d33", "16486214");
-
         usernameView = (EditText) findViewById(R.id.email);
         passwordView = (EditText) findViewById(R.id.password);
         passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener()

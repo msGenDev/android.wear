@@ -15,3 +15,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+#Dont show proguard warning for the following chasses that prevent from build release apk
+-dontwarn org.apache.commons.**
+-dontwarn org.ietf.jgss.**

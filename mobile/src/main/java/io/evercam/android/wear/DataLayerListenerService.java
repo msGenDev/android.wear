@@ -314,7 +314,7 @@ public class DataLayerListenerService extends WearableListenerService
             API.setUserKeyPair(apiKey, apiId);
             try
             {
-                ArrayList<Camera> cameraArrayList = User.getCameras(username, true, false);
+                ArrayList<Camera> cameraArrayList = Camera.getAll(username, true, false);
                 if(cameraArrayList.size() > 0)
                 {
                     for(int index = 0; index < cameraArrayList.size(); index++)
